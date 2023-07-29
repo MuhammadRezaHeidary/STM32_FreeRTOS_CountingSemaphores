@@ -426,16 +426,24 @@ static void MX_GPIO_Init(void)
 void Priority1_Task_Callback(void *pvParameters) {
 
 	char str_resources[3];
+	int sem_count = 0;
+	char str_semcount[3];
 
 	// Give 3 Semaphores at begginning of the task
-//	xSemaphoreGive(Counting_Semaphore);
-//	xSemaphoreGive(Counting_Semaphore);
-//	xSemaphoreGive(Counting_Semaphore);
+	xSemaphoreGive(Counting_Semaphore);
+	xSemaphoreGive(Counting_Semaphore);
+	xSemaphoreGive(Counting_Semaphore);
 
 	while(1) {
 		  char str[150];
 		  strcpy(str, "Entering to the task with highest priority(P1) => About to acquire the semaphore\r\n");
+		  sem_count = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count, str_semcount, 10);
+		  strcat(str, "#P1 Available tokens: ");
+		  strcat(str, str_semcount);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
 
 		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
 
@@ -456,10 +464,17 @@ void Priority1_Task_Callback(void *pvParameters) {
 void Priority2_Task_Callback(void *pvParameters) {
 
 	char str_resources[3];
+	int sem_count = 0;
+	char str_semcount[3];
 
 	while(1) {
 		  char str[150];
 		  strcpy(str, "Entering to the task with high priority(P2) => About to acquire the semaphore\r\n");
+		  sem_count = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count, str_semcount, 10);
+		  strcat(str, "#P2 Available tokens: ");
+		  strcat(str, str_semcount);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
@@ -481,10 +496,17 @@ void Priority2_Task_Callback(void *pvParameters) {
 void Priority3_Task_Callback(void *pvParameters) {
 
 	char str_resources[3];
+	int sem_count = 0;
+	char str_semcount[3];
 
 	while(1) {
 		  char str[150];
 		  strcpy(str, "Entering to the task with low priority(P3) => About to acquire the semaphore\r\n");
+		  sem_count = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count, str_semcount, 10);
+		  strcat(str, "#P3 Available tokens: ");
+		  strcat(str, str_semcount);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
@@ -506,10 +528,17 @@ void Priority3_Task_Callback(void *pvParameters) {
 void Priority4_Task_Callback(void *pvParameters) {
 
 	char str_resources[3];
+	int sem_count = 0;
+	char str_semcount[3];
 
 	while(1) {
 		  char str[150];
 		  strcpy(str, "Entering to the task with lowest priority(P4) => About to acquire the semaphore\r\n");
+		  sem_count = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count, str_semcount, 10);
+		  strcat(str, "#P4 Available tokens: ");
+		  strcat(str, str_semcount);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
