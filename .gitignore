@@ -1,0 +1,10 @@
+Debug/Core/*
+Debug/Drivers/*
+Debug/Middlewares/*
+Debug/makefile
+Debug/objects.list
+Debug/objects.mk
+Debug/RTOS_STM32_CountingSemaphore.list
+Debug/RTOS_STM32_CountingSemaphore.map
+Debug/sources.mk
+Drivers
