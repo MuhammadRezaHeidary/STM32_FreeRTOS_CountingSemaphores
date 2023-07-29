@@ -13,6 +13,7 @@
   <li>xSemaphoreTake(semaphore, delay) => This function acquires the semaphore</li>
   <li>In <b>Binray Semaphores</b> you can just <i>release</i> semaphore in the task which have <i>acquired</i> it!</li>
   <li>In <b>Counting Semaphores</b> you can <i>release</i> semaphore at <i>any point of code</i>!</li>
+  <li>Releasing Semaphore from ISR is not straightforward by using a single function(<code>Commit: "Counting Semaphores release with ISR:Part2"</code>)!</li>
 </ol> 
 
 ![image](https://github.com/MuhammadRezaHeidary/STM32_FreeRTOS/assets/50994989/a357ad40-bffa-4a89-9200-ced01092da1a)
