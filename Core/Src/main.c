@@ -38,6 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define RTOS_COUNTING_SEM_VAL 3
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -130,10 +131,11 @@ int main(void)
   {
 	  char *str = "This is a test from Muhammad Reza Heidary.\r\n";
 	  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), 100);
+	  HAL_UART_Receive_IT(&huart4, rxByte, 1);
   }
 
   // Creating Counting Semaphore
-  Counting_Semaphore = xQueueCreateCountingSemaphore(3, 0);
+  Counting_Semaphore = xQueueCreateCountingSemaphore(RTOS_COUNTING_SEM_VAL, 0);
   if(Counting_Semaphore == NULL) {
 	  char *strSem = "Unable to create Semaphore!\r\n";
 	  HAL_UART_Transmit(&huart4, (uint8_t *)strSem, strlen(strSem), 100);
@@ -426,9 +428,10 @@ void Priority1_Task_Callback(void *pvParameters) {
 	char str_resources[3];
 
 	// Give 3 Semaphores at begginning of the task
-	xSemaphoreGive(Counting_Semaphore);
-	xSemaphoreGive(Counting_Semaphore);
-	xSemaphoreGive(Counting_Semaphore);
+//	xSemaphoreGive(Counting_Semaphore);
+//	xSemaphoreGive(Counting_Semaphore);
+//	xSemaphoreGive(Counting_Semaphore);
+
 	while(1) {
 		  char str[150];
 		  strcpy(str, "Entering to the task with highest priority(P1) => About to acquire the semaphore\r\n");
@@ -444,7 +447,8 @@ void Priority1_Task_Callback(void *pvParameters) {
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-		  vTaskDelay(3000);
+//		  vTaskDelay(3000);
+		  vTaskDelete(NULL);
 	}
 
 }
@@ -468,7 +472,8 @@ void Priority2_Task_Callback(void *pvParameters) {
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-		  vTaskDelay(2000);
+//		  vTaskDelay(2000);
+		  vTaskDelete(NULL);
 	}
 
 }
@@ -492,7 +497,8 @@ void Priority3_Task_Callback(void *pvParameters) {
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-		  vTaskDelay(1000);
+//		  vTaskDelay(1000);
+		  vTaskDelete(NULL);
 	}
 
 }
@@ -516,11 +522,28 @@ void Priority4_Task_Callback(void *pvParameters) {
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-		  vTaskDelay(3000);
+		  vTaskDelay(500);
+//		  vTaskDelete(NULL);
 	}
 
 }
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if(huart->Instance == huart4.Instance) {
+
+		HAL_UART_Receive_IT(&huart4, rxByte, 1);
+
+		// Releasing Semaphore from ISR is not straightforward by using a single function
+		if(rxByte[0] == 'R') {
+			static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	        xSemaphoreGiveFromISR(Counting_Semaphore, &xHigherPriorityTaskWoken );
+
+//	        portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+	        if(xHigherPriorityTaskWoken != pdFALSE)
+	        	portYIELD();
+		}
+	}
+}
 /* USER CODE END 4 */
 
 
