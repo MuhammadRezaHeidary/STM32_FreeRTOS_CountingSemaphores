@@ -11,7 +11,9 @@
 <ol>
   <li>xSemaphoreGive(semaphore) => This function releases the semaphore</li>
   <li>xSemaphoreTake(semaphore, delay) => This function acquires the semaphore</li>
-  <li>uxSemaphoreGetCount(semaphore) => This function returns count of a semaphore (binary or counting)</li>
+  <li>uxSemaphoreGetCount(semaphore) => This function returns count of a semaphore (binary semaphore or counting semaphore)</li>
+  <li>taskYIELD() or portYIELD() => This function is used to request a context switch to another task. However, if there are no other tasks at a higher or equal priority to the task that calls this function, then the RTOS scheduler will simply select the task that called it to run again.</li>
+  <li>uxQueueMessagesWaitingFromISR(semaphore) => This function returns count of a semaphore in an ISR(binary semaphore or counting semaphore)</li>
   <li>In <b>Binray Semaphores</b> you can just <i>release</i> semaphore in the task which have <i>acquired</i> it!</li>
   <li>In <b>Counting Semaphores</b> you can <i>release</i> semaphore at <i>any point of code</i>!</li>
   <li>Releasing Semaphore from ISR is not straightforward by using a single function(<code>Commit: "Counting Semaphores release with ISR:Part2"</code>)!</li>

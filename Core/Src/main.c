@@ -39,6 +39,10 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define RTOS_COUNTING_SEM_VAL 3
+
+//
+#define uxSemaphoreGetCountFromISR( xSemaphore )         uxQueueMessagesWaitingFromISR( ( QueueHandle_t ) ( xSemaphore ) )
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -428,6 +432,8 @@ void Priority1_Task_Callback(void *pvParameters) {
 	char str_resources[3];
 	int sem_count = 0;
 	char str_semcount[3];
+	int sem_count_token = 0;
+	char str_semcount_token[3];
 
 	// Give 3 Semaphores at begginning of the task
 	xSemaphoreGive(Counting_Semaphore);
@@ -451,12 +457,17 @@ void Priority1_Task_Callback(void *pvParameters) {
 		  strcpy(str, "Leaving task with highest priority(P1) && Data Accessed is::");
 		  strcat(str, str_resources);
 		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  sem_count_token = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count_token, str_semcount_token, 10);
+		  strcat(str, "###P1 Available tokens: ");
+		  strcat(str, str_semcount_token);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-//		  vTaskDelay(3000);
-		  vTaskDelete(NULL);
+		  vTaskDelay(3000);
+//		  vTaskDelete(NULL);
 	}
 
 }
@@ -466,6 +477,8 @@ void Priority2_Task_Callback(void *pvParameters) {
 	char str_resources[3];
 	int sem_count = 0;
 	char str_semcount[3];
+	int sem_count_token = 0;
+	char str_semcount_token[3];
 
 	while(1) {
 		  char str[150];
@@ -483,12 +496,17 @@ void Priority2_Task_Callback(void *pvParameters) {
 		  strcpy(str, "Leaving task with high priority(P2) && Data Accessed is::");
 		  strcat(str, str_resources);
 		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  sem_count_token = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count_token, str_semcount_token, 10);
+		  strcat(str, "###P2 Available tokens: ");
+		  strcat(str, str_semcount_token);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-//		  vTaskDelay(2000);
-		  vTaskDelete(NULL);
+		  vTaskDelay(2000);
+//		  vTaskDelete(NULL);
 	}
 
 }
@@ -498,6 +516,8 @@ void Priority3_Task_Callback(void *pvParameters) {
 	char str_resources[3];
 	int sem_count = 0;
 	char str_semcount[3];
+	int sem_count_token = 0;
+	char str_semcount_token[3];
 
 	while(1) {
 		  char str[150];
@@ -515,12 +535,17 @@ void Priority3_Task_Callback(void *pvParameters) {
 		  strcpy(str, "Leaving task with low priority(P3) && Data Accessed is::");
 		  strcat(str, str_resources);
 		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  sem_count_token = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count_token, str_semcount_token, 10);
+		  strcat(str, "###P3 Available tokens: ");
+		  strcat(str, str_semcount_token);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  res_index++;
 		  if(res_index > 2) res_index = 0;
-//		  vTaskDelay(1000);
-		  vTaskDelete(NULL);
+		  vTaskDelay(1000);
+//		  vTaskDelete(NULL);
 	}
 
 }
@@ -530,6 +555,8 @@ void Priority4_Task_Callback(void *pvParameters) {
 	char str_resources[3];
 	int sem_count = 0;
 	char str_semcount[3];
+	int sem_count_token = 0;
+	char str_semcount_token[3];
 
 	while(1) {
 		  char str[150];
@@ -547,6 +574,11 @@ void Priority4_Task_Callback(void *pvParameters) {
 		  strcpy(str, "Leaving task with lowest priority(P4) && Data Accessed is::");
 		  strcat(str, str_resources);
 		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  sem_count_token = uxSemaphoreGetCount(Counting_Semaphore);
+		  itoa(sem_count_token, str_semcount_token, 10);
+		  strcat(str, "###P4 Available tokens: ");
+		  strcat(str, str_semcount_token);
+		  strcat(str, "\r\n");
 		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 
 		  res_index++;
@@ -565,12 +597,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		// Releasing Semaphore from ISR is not straightforward by using a single function
 		if(rxByte[0] == 'R') {
 			static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	        xSemaphoreGiveFromISR(Counting_Semaphore, &xHigherPriorityTaskWoken );
+
+	        xSemaphoreGiveFromISR(Counting_Semaphore, &xHigherPriorityTaskWoken ); //Release semaphore in ISR
+	        xSemaphoreGiveFromISR(Counting_Semaphore, &xHigherPriorityTaskWoken ); //Release semaphore in ISR
+	        xSemaphoreGiveFromISR(Counting_Semaphore, &xHigherPriorityTaskWoken ); //Release semaphore in ISR
+
+			int sem_count = 0;
+			char str_semcount[3] = {'\0'};;
+		    char strISR[150] = {'\0'};;
+
+	        sem_count = uxSemaphoreGetCountFromISR(Counting_Semaphore);
+			itoa(sem_count, str_semcount, 10);
+			strcat(strISR, "###UART ISR### Available tokens: ");
+			strcat(strISR, str_semcount);
+			strcat(strISR, "\r\n");
+		    HAL_UART_Transmit(&huart4, (uint8_t *)strISR, strlen(strISR), HAL_MAX_DELAY);
+		    for(uint8_t i = 0; i < 150; i++) strISR[i] = 0;
 
 //	        portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 	        if(xHigherPriorityTaskWoken != pdFALSE)
-	        	portYIELD();
+	        	taskYIELD();
 		}
+
 	}
 }
 /* USER CODE END 4 */
