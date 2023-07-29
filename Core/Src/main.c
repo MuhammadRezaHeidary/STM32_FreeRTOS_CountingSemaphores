@@ -133,7 +133,7 @@ int main(void)
   }
 
   // Creating Counting Semaphore
-  Counting_Semaphore = xQueueCreateCountingSemaphore(sizeof(resources), 0);
+  Counting_Semaphore = xQueueCreateCountingSemaphore(3, 0);
   if(Counting_Semaphore == NULL) {
 	  char *strSem = "Unable to create Semaphore!\r\n";
 	  HAL_UART_Transmit(&huart4, (uint8_t *)strSem, strlen(strSem), 100);
@@ -423,19 +423,51 @@ static void MX_GPIO_Init(void)
 
 void Priority1_Task_Callback(void *pvParameters) {
 
+	char str_resources[3];
+
+	// Give 3 Semaphores at begginning of the task
+	xSemaphoreGive(Counting_Semaphore);
+	xSemaphoreGive(Counting_Semaphore);
+	xSemaphoreGive(Counting_Semaphore);
 	while(1) {
-		  char *str = "Task with highest priority(P1) is working!\r\n";
-		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), 100);
-		  vTaskDelay(2000);
+		  char str[150];
+		  strcpy(str, "Entering to the task with highest priority(P1) => About to acquire the semaphore\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
+
+		  itoa(resources[res_index], str_resources, 10);
+		  strcpy(str, "Leaving task with highest priority(P1) && Data Accessed is::");
+		  strcat(str, str_resources);
+		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  res_index++;
+		  if(res_index > 2) res_index = 0;
+		  vTaskDelay(3000);
 	}
 
 }
 
 void Priority2_Task_Callback(void *pvParameters) {
 
+	char str_resources[3];
+
 	while(1) {
-		  char *str = "Task with high priority(P2) is working!\r\n";
-		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), 100);
+		  char str[150];
+		  strcpy(str, "Entering to the task with high priority(P2) => About to acquire the semaphore\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
+
+		  itoa(resources[res_index], str_resources, 10);
+		  strcpy(str, "Leaving task with high priority(P2) && Data Accessed is::");
+		  strcat(str, str_resources);
+		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  res_index++;
+		  if(res_index > 2) res_index = 0;
 		  vTaskDelay(2000);
 	}
 
@@ -443,20 +475,48 @@ void Priority2_Task_Callback(void *pvParameters) {
 
 void Priority3_Task_Callback(void *pvParameters) {
 
+	char str_resources[3];
+
 	while(1) {
-		  char *str = "Task with low priority(P3) is working!\r\n";
-		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), 100);
-		  vTaskDelay(2000);
+		  char str[150];
+		  strcpy(str, "Entering to the task with low priority(P3) => About to acquire the semaphore\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
+
+		  itoa(resources[res_index], str_resources, 10);
+		  strcpy(str, "Leaving task with low priority(P3) && Data Accessed is::");
+		  strcat(str, str_resources);
+		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  res_index++;
+		  if(res_index > 2) res_index = 0;
+		  vTaskDelay(1000);
 	}
 
 }
 
 void Priority4_Task_Callback(void *pvParameters) {
 
+	char str_resources[3];
+
 	while(1) {
-		  char *str = "Task with lowest priority(P4) is working!\r\n";
-		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), 100);
-		  vTaskDelay(2000);
+		  char str[150];
+		  strcpy(str, "Entering to the task with lowest priority(P4) => About to acquire the semaphore\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  xSemaphoreTake(Counting_Semaphore, portMAX_DELAY);
+
+		  itoa(resources[res_index], str_resources, 10);
+		  strcpy(str, "Leaving task with lowest priority(P4) && Data Accessed is::");
+		  strcat(str, str_resources);
+		  strcat(str, " => Not releasing the semaphore...\r\n");
+		  HAL_UART_Transmit(&huart4, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
+
+		  res_index++;
+		  if(res_index > 2) res_index = 0;
+		  vTaskDelay(3000);
 	}
 
 }
